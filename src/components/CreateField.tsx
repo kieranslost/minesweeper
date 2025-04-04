@@ -3,22 +3,23 @@ import {useState} from "react";
 
 export function CreateField(){
 
-    let [getInvisible, setInvisible] = useState(0);
+    const [getInvisible, setInvisible] = useState(0);
     const [getTableWidth, setTableWidth] = useState(13);
     const [getTableHeight, setTableHeight] = useState(13);
     const [getUpdateTableWidth, setUpdateTableWidth] = useState(getTableHeight);
     const [getUpdateTableHeight, setUpdateTableHeight] = useState(getTableHeight);
     const [getMinesToGenerate, setMinesToGenerate] = useState(30);
     const [getDisplayedMines, setDisplayedMines] = useState(getMinesToGenerate);
-    let [getGameStarted, setGameStarted] = useState(0);
-    let [getGameLoss, setGameLoss] = useState(0);
-    let [getMines, setMines] = useState<number[]>([]);
-    let [getMineField, setMineField] = useState<any[][]>(Array(getTableHeight).fill(null).map(() => Array(getTableWidth).fill(0)));
-    let [getShownMineField, setShownMineField] = useState<any[][]>(Array(getTableHeight).fill(null).map(() => Array(getTableWidth).fill("")));
+    const [getGameStarted, setGameStarted] = useState(0);
+    const [getGameLoss, setGameLoss] = useState(0);
+    const [getMines, setMines] = useState<number[]>([]);
+    const [getMineField, setMineField] = useState<any[][]>(Array(getTableHeight).fill(null).map(() => Array(getTableWidth).fill(0)));
+    const [getShownMineField, setShownMineField] = useState<any[][]>(Array(getTableHeight).fill(null).map(() => Array(getTableWidth).fill("")));
+    const [getPreGeneratedField, setPreGeneratedField] = useState<string>("");
 
     const createMineField = (rowIndex: number, colIndex: number) => {
 
-        let fieldClicked = ((rowIndex*getTableWidth)+ colIndex);
+        let fieldClicked = ((rowIndex*getTableWidth)+ colIndex)
 
         const mines = [...getMines];
 
@@ -203,7 +204,7 @@ export function CreateField(){
         if(openedFieldCounter === (getTableHeight*getTableWidth)-getMinesToGenerate){
             handleGameWon();
 
-            let wonMineField= [...getMineField];
+            let wonMineField = [...getMineField];
 
             for(let n = 0; n < getTableHeight; n++){
                 for(let i = 0; i < getTableWidth; i++){
@@ -239,6 +240,7 @@ export function CreateField(){
         setMineField(Array(getUpdateTableHeight).fill(null).map(() => Array(getUpdateTableWidth).fill(0)));
         setShownMineField(Array(getUpdateTableHeight).fill(null).map(() => Array(getUpdateTableWidth).fill("")));
     }
+    
 
     const invisible = () => {
         if(getInvisible === 1){
@@ -275,6 +277,70 @@ export function CreateField(){
         }
     }
 
+    const generateFieldArrayForUse = () => {
+
+        let mineFieldToBeTransformed = "";
+        let setMineValue = 9;
+
+        mineFieldToBeTransformed += getTableHeight + "_";
+        mineFieldToBeTransformed += getTableWidth + "_";
+
+        for(let i = 0; i < getTableHeight; i++){
+            for(let n = 0; n < getTableWidth; n++){  
+                mineFieldToBeTransformed += getMineField[i][n] == "*" ? setMineValue : getMineField[i][n];
+            }
+        }
+
+        alert("Copy This: " + mineFieldToBeTransformed);
+        console.log(mineFieldToBeTransformed);
+    }
+
+    const renderGeneratedFieldArrayForUse = () => {
+
+        let preGeneratedFieldArray = getPreGeneratedField.split("_");
+
+        let newMineField: string[] = [];
+
+        let height = Number(preGeneratedFieldArray[0]);
+        let width = Number(preGeneratedFieldArray[1]);
+
+        let newNewMineField: any[][] = Array.from({ length: height }, () => []);
+
+        let forWidth1 = 0;
+        let forWidth2 = width;
+        
+        for(let i = 0; i < height; i++){
+            newMineField[i] = preGeneratedFieldArray[2].slice(forWidth1, forWidth2);
+            forWidth1 += width;
+            forWidth2 += width;
+        }
+
+        let value;
+
+        for(let a = 0; a < height; a++){
+            for(let n = 0; n < width; n++){  
+                value = newMineField[a].split("");
+                newNewMineField[a][n] = Number(value[n]) == 9 ? "*" : Number(value[n]);
+            }
+        }
+
+        const [getShownMineField, setShownMineField] = useState<any[][]>(Array(getTableHeight).fill(null).map(() => Array(getTableWidth).fill("")));
+
+        setShownMineField(newNewMineField);
+
+        return Array.from({ length: height }).map((_, rowIndex) => (
+            <tr key={rowIndex}>
+                {Array.from({ length: width }).map((_, colIndex) => (
+                    <td key={colIndex}>
+                        <MineButton name={newNewMineField[rowIndex][colIndex]} disabled={(getShownMineField[rowIndex][colIndex] !== "" || getGameLoss === 1) && getShownMineField[rowIndex][colIndex] !== "F"} style={{ color: getColor(getShownMineField[rowIndex][colIndex]), fontWeight: "bold"}}
+                                    onClick={getGameStarted == 0 ? () => createMineField(rowIndex, colIndex) : () => uncoverField(getShownMineField, rowIndex, colIndex)} onContextMenu={(event) => handleRightClick(event, rowIndex, colIndex)}
+                        >{getInvisible === 1 ? newNewMineField[rowIndex][colIndex] : getShownMineField[rowIndex][colIndex]}</MineButton>
+                    </td>
+                ))}
+            </tr>
+        ));
+    }
+
     const renderTable = () => {
 
         return Array.from({ length: getTableHeight }).map((_, rowIndex) => (
@@ -304,6 +370,10 @@ export function CreateField(){
                    onChange={e => setMinesToGenerate(e.target.valueAsNumber)}></input>
             <button onClick={handleGameRestart}>Restart Game</button>
 
+            <button onClick={generateFieldArrayForUse}>Get Field Code</button>
+            <button onClick={renderGeneratedFieldArrayForUse}>Set Field Code</button>
+            <input type={"input"} value={getPreGeneratedField}
+                   onChange={e => setPreGeneratedField(e.target.value)}></input>
 
             <button hidden={true} onClick={invisible}>invisible mode</button>
 
