@@ -1,12 +1,14 @@
 import React from 'react';
 import './App.css';
-import {CreateField} from "./components/CreateField";
+import {DisplayField} from "./pages/DisplayField";
+import {GameProvider} from "./context/GameContext";
 
 function App() {
   return (
     <div className="App">
-      <CreateField></CreateField>
-
+      <GameProvider>
+        <DisplayField></DisplayField>
+      </GameProvider>
     </div>
   );
 }
