@@ -96,8 +96,8 @@ export function GeneratedField() {
         mineFieldToBeTransformed += getWidthIndex + "_";
 
         for(let i = 0; i < getCurrentTableHeight; i++){
-            for(let n = 0; n < getCurrentTableWidth; n++){  
-                mineFieldToBeTransformed += getMineField[i][n] == "*" ? setMineValue : getMineField[i][n];
+            for(let n = 0; n < getCurrentTableWidth; n++){ 
+                mineFieldToBeTransformed += getMineField[i][n] === "*" || getMineField[i][n] === "F" ? setMineValue : getMineField[i][n];
             }
         }
         
